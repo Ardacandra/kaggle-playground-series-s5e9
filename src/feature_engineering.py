@@ -19,6 +19,8 @@ class OutlierRemoval(BaseEstimator, TransformerMixin):
         self.q1 = X.quantile(0.25)
         self.q3 = X.quantile(0.75)
         self.iqr = self.q3 - self.q1
+        
+        self.median = X.quantile(0.50)
 
         return self
         
@@ -29,7 +31,7 @@ class OutlierRemoval(BaseEstimator, TransformerMixin):
         mask = (X < lower_bound) | (X > upper_bound)
         X[mask] = np.nan
 
-        return X.fillna(X.median())  # replace removed values with median
+        return X.fillna(self.median)  # replace removed values with median
     
 def get_custom_pipeline(
     numeric_features,
