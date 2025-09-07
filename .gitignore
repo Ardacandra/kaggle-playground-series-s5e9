@@ -10,3 +10,6 @@ __pycache__/
 
 # Ignore output files
 output/
+
+# Ignore model files
+models/
