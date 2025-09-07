@@ -1,0 +1,22 @@
+#train & test dataset location
+train_data_path: "data/train.csv"
+test_data_path: "data/test.csv"
+
+#model blueprint location and where to store the trained model and predictions
+model_blueprint_path: "output/02_modeling__grid_search_rf_pca.joblib"
+model_trained_path : "models/02_modeling__grid_search_rf_pca_trained.joblib"
+preds_path: "output/preds/02_modeling__grid_search_rf_pca_preds.csv"
+
+#training parameters
+target_col: "BeatsPerMinute"
+feature_cols : [
+  'RhythmScore',
+  'AudioLoudness',
+  'VocalContent',
+  'AcousticQuality',
+  'InstrumentalScore',
+  'LivePerformanceLikelihood',
+  'MoodScore',
+  'TrackDurationMs',
+  'Energy'
+]
