@@ -45,6 +45,20 @@ unzip data/*.zip -d data/
 
 ### How to Run
 
+1. Train the model
+
+```
+python train.py --config configs/default.yaml
+```
+
+2. Test the model
+
+```
+python predict.py --config configs/default.yaml
+```
+
 ### Results
 
 ### Acknowledgements
+
+This project was developed as part of the Kaggle Playground Series – Season 5, Episode 9
