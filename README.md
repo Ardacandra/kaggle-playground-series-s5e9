@@ -9,8 +9,11 @@ The goal of this competition is to predict a song's beats-per-minute.
 ### Project Structure
 
 ```
+├── configs/            # Configurations for training and prediction
 ├── data/               # Raw data
+├── models/             # Store trained models
 ├── notebooks/          # Jupyter notebooks for exploration & experiments
+├── output/             # Store model predictions
 ├── src/                # Python scripts
 ├── requirements.txt    # Project dependencies
 └── README.md           # Project documentation
