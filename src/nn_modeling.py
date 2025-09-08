@@ -5,6 +5,26 @@ import torch
 import torch.nn as nn
 import torch.optim as optim
 from sklearn.base import BaseEstimator, ClassifierMixin
+class WideAndDeep(nn.Module):
+    def __init__(self, input_dim, hidden_sizes=[64, 32], output_dim=1):
+        super().__init__()
+        # Wide (linear) part
+        self.wide = nn.Linear(input_dim, output_dim)
+        # Deep (MLP) part
+        deep_layers = []
+        in_dim = input_dim
+        for h in hidden_sizes:
+            deep_layers.append(nn.Linear(in_dim, h))
+            deep_layers.append(nn.ReLU())
+            deep_layers.append(nn.BatchNorm1d(h))
+            in_dim = h
+        self.deep = nn.Sequential(*deep_layers)
+        self.deep_out = nn.Linear(in_dim, output_dim)
+
+    def forward(self, x):
+        wide_out = self.wide(x)
+        deep_out = self.deep_out(self.deep(x))
+        return wide_out + deep_out
 
 class SimpleNNRegressor(nn.Module):
     def __init__(self, input_dim, hidden_sizes=[64, 32, 16]):

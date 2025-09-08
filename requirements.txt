@@ -64,6 +64,7 @@ Pygments @ file:///home/conda/feedstock_root/build_artifacts/pygments_1750615794
 pyparsing==3.2.3
 python-dateutil @ file:///home/conda/feedstock_root/build_artifacts/bld/rattler-build_python-dateutil_1751104122/work
 python-slugify==8.0.4
+pytorch-tabnet==4.1.0
 pytz==2025.2
 PyYAML==6.0.2
 pyzmq @ file:///croot/pyzmq_1734687138743/work
