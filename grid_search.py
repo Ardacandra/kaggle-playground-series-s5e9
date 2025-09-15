@@ -58,14 +58,14 @@ def main(config_path):
     # --- Build preprocessing steps ---
     available_steps = []
 
+    if preproc_cfg["outlier_removal"]["enabled"]:
+        available_steps.append(("outlier_removal", OutlierRemoval(), [None])) # no hyperparams
+
     if preproc_cfg["polynomial"]["enabled"]:
         available_steps.append(("polynomial", PolynomialFeatures(interaction_only=False, include_bias=False), preproc_cfg["polynomial"]["degree"]))
 
     if preproc_cfg["binning"]["enabled"]:
         available_steps.append(("binning", KBinsDiscretizer(encode="ordinal"), preproc_cfg["binning"]["n_bins"]))
-
-    if preproc_cfg["outlier_removal"]["enabled"]:
-        available_steps.append(("outlier_removal", OutlierRemoval(), [None])) # no hyperparams
 
     if preproc_cfg["standardization"]["enabled"]:
         available_steps.append(("standardization", StandardScaler(), [None]))  # no hyperparams
@@ -111,7 +111,7 @@ def main(config_path):
                 pd.DataFrame(results, columns=['model_name', 'preprocessing', 'best_params', 'rmse']).to_csv(os.path.join(cfg["gs_output_dir"], "grid_search_result.csv"), index=False)
 
             except Exception as e:
-                logging.info(f"skipping grid search for parameter : {param_grid}. reason : {type(e).__name__}")
+                logging.info(f"skipping grid search for step : {steps}. reason : {type(e).__name__}")
                 continue
 
     # --- Display results ---
