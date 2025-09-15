@@ -20,3 +20,48 @@ feature_cols : [
   'TrackDurationMs',
   'Energy'
 ]
+
+#grid-search parameters
+gs_output_dir: "output/grid_search/run_1/"
+# sample_frac: null
+# sample_frac: 0.2
+sample_frac: 0.01
+n_splits: 5
+preprocessing:
+  polynomial:
+    enabled: true
+    degree: [2, 3]
+  binning:
+    enabled: true
+    n_bins: [5, 10, 15]
+  outlier_removal:
+    enabled: true
+  standardization:
+    enabled: true
+  pca:
+    enabled: true
+    var_ratio: [0.90, 0.95, 0.99]
+models_and_params:
+  knn:
+    model: KNeighborsRegressor
+    params:
+      model__n_neighbors: [3, 5, 10]
+  # ridge:
+  #   model: Ridge
+  #   params:
+  #     model__alpha: [0.01, 0.1, 1, 10]
+  # lasso:
+  #   model: Lasso
+  #   params:
+  #     model__alpha: [0.01, 0.1, 1, 10]
+  # rf:
+  #   model: RandomForestRegressor
+  #   params:
+  #     model__n_estimators: [100, 200]
+  #     model__max_depth: [null, 10]
+  # gbr:
+  #   model: GradientBoostingRegressor
+  #   params:
+  #     model__n_estimators: [100, 200]
+  #     model__learning_rate: [0.05, 0.1]
+  #     model__max_depth: [3, 5]
