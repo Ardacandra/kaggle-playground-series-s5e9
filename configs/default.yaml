@@ -24,8 +24,8 @@ feature_cols : [
 #grid-search parameters
 gs_output_dir: "output/grid_search/run_1/"
 # sample_frac: null
-sample_frac: 0.1
-# sample_frac: 0.01
+# sample_frac: 0.1
+sample_frac: 0.01
 n_splits: 5
 preprocessing:
   polynomial:

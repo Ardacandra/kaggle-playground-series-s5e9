@@ -107,6 +107,8 @@ def main(config_path):
                 result = (model_name, [s[0] for s in combo], grid.best_params_, (-grid.best_score_)**0.5)
                 results.append(result)
                 logging.info(result)
+                #save temporary results to csv
+                pd.DataFrame(results, columns=['model_name', 'preprocessing', 'best_params', 'rmse']).to_csv(os.path.join(cfg["gs_output_dir"], "grid_search_result.csv"), index=False)
 
             except Exception as e:
                 logging.info(f"skipping grid search for parameter : {param_grid}. reason : {e}")
