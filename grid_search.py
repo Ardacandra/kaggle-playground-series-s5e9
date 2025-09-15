@@ -14,6 +14,7 @@ from sklearn.ensemble import RandomForestRegressor, GradientBoostingRegressor
 from sklearn.linear_model import Ridge, Lasso
 from sklearn.neighbors import KNeighborsRegressor
 from scipy import stats
+import logging
 
 from src.feature_engineering import OutlierRemoval
 
@@ -28,6 +29,18 @@ def generate_all_combinations(steps):
 def main(config_path):
     with open(config_path, "r") as f:
         cfg = yaml.safe_load(f)
+
+    #mkdir for output if not exists
+    if not os.path.exists(cfg["gs_output_dir"]):
+        os.makedirs(cfg["gs_output_dir"])
+
+    # --- Setup logging ---
+    logging.basicConfig(
+        filename=os.path.join(cfg["gs_output_dir"], "grid_search.log"),
+        level=logging.INFO,
+        format="%(asctime)s - %(levelname)s - %(message)s"
+    )
+    logging.info(f"starting grid search...")
     
     #load data
     df = pd.read_csv(cfg["train_data_path"])
@@ -35,15 +48,12 @@ def main(config_path):
         df = df.sample(frac=cfg["sample_frac"], random_state=cfg.get("random_state", 42)).reset_index(drop=True)
     X = df[cfg["feature_cols"]]
     y = df[cfg["target_col"]]
-    print(X.shape)
-    print(y.shape)
-
-    #mkdir for output if not exists
-    if not os.path.exists(cfg["gs_output_dir"]):
-        os.makedirs(cfg["gs_output_dir"])
+    logging.info(f"dataset loaded. X shape : {X.shape}. y shape : {y.shape}.")
 
     preproc_cfg = cfg["preprocessing"]
     models_cfg = cfg["models_and_params"]
+    logging.info(f"preprocessing config : {preproc_cfg}")
+    logging.info(f"models config : {models_cfg}")
 
     # --- Build preprocessing steps ---
     available_steps = []
@@ -64,7 +74,7 @@ def main(config_path):
         available_steps.append(("pca", PCA(), preproc_cfg["pca"]["var_ratio"]))
 
     preprocessing_combinations = list(generate_all_combinations(available_steps))
-    print(f"Number of preprocessing combinations : {len(preprocessing_combinations)}")
+    logging.info(f"preprocessing combinations generated. number of combinations : {len(preprocessing_combinations)}.")
 
     # --- Run GridSearch for each model ---
     results = []
@@ -94,16 +104,17 @@ def main(config_path):
             grid = GridSearchCV(pipeline, param_grid, cv=cfg['n_splits'], scoring="neg_mean_squared_error", n_jobs=-1)
             try:
                 grid.fit(X.copy(), y.copy())
+                result = (model_name, [s[0] for s in combo], grid.best_params_, (-grid.best_score_)**0.5)
+                results.append(result)
+                logging.info(result)
 
-                results.append((model_name, [s[0] for s in combo], grid.best_params_, grid.best_score_))
-            except:
-                print(f"Skipping parameters : {param_grid}")
+            except Exception as e:
+                logging.info(f"skipping grid search for parameter : {param_grid}. reason : {e}")
                 continue
 
     # --- Display results ---
     for res in results:
-        model, preproc_steps, best_params, score = res
-        rmse = (-score)**0.5
+        model, preproc_steps, best_params, rmse = res
         print(f"Model: {model}, Preprocessing: {preproc_steps}, RMSE: {rmse:.4f}")
         print(f"Best Params: {best_params}")
         print("-" * 60)
