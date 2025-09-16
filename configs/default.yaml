@@ -3,9 +3,9 @@ train_data_path: "data/train.csv"
 test_data_path: "data/test.csv"
 
 #model blueprint location and where to store the trained model and predictions
-model_blueprint_path: "output/03_nn_modeling__exp_D.joblib"
-model_trained_path : "models/03_nn_modeling__exp_D_trained.joblib"
-preds_path: "output/preds/03_nn_modeling__exp_D_preds.csv"
+model_blueprint_path: "output/blueprint/outlier_poly_pca_lasso_alpha_0_001_max_iter_1000_n_components_0_85_degree_3.joblib"
+model_trained_path : "models/outlier_poly_pca_lasso_alpha_0_001_max_iter_1000_n_components_0_85_degree_3_trained.joblib"
+preds_path: "output/preds/outlier_poly_pca_lasso_alpha_0_001_max_iter_1000_n_components_0_85_degree_3_preds.csv"
 
 #training parameters
 target_col: "BeatsPerMinute"
@@ -25,7 +25,8 @@ feature_cols : [
 gs_output_dir: "output/grid_search/run_1/"
 # sample_frac: null
 # sample_frac: 0.1
-sample_frac: 0.01
+sample_frac : 0.06
+# sample_frac: 0.01
 n_splits: 5
 preprocessing:
   outlier_removal:
@@ -46,22 +47,22 @@ models_and_params:
     model: KNeighborsRegressor
     params:
       model__n_neighbors: [3, 5, 10]
-  # ridge:
-  #   model: Ridge
-  #   params:
-  #     model__alpha: [0.01, 0.1, 1, 10]
-  # lasso:
-  #   model: Lasso
-  #   params:
-  #     model__alpha: [0.01, 0.1, 1, 10]
-  # rf:
-  #   model: RandomForestRegressor
-  #   params:
-  #     model__n_estimators: [100, 200]
-  #     model__max_depth: [null, 10]
-  # gbr:
-  #   model: GradientBoostingRegressor
-  #   params:
-  #     model__n_estimators: [100, 200]
-  #     model__learning_rate: [0.05, 0.1]
-  #     model__max_depth: [3, 5]
+  ridge:
+    model: Ridge
+    params:
+      model__alpha: [0.01, 0.1, 1, 10]
+  lasso:
+    model: Lasso
+    params:
+      model__alpha: [0.01, 0.1, 1, 10]
+  rf:
+    model: RandomForestRegressor
+    params:
+      model__n_estimators: [100, 200]
+      model__max_depth: [null, 10]
+  gbr:
+    model: GradientBoostingRegressor
+    params:
+      model__n_estimators: [100, 200]
+      model__learning_rate: [0.05, 0.1]
+      model__max_depth: [3, 5]
