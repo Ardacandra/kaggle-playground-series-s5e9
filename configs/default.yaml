@@ -3,9 +3,9 @@ train_data_path: "data/train.csv"
 test_data_path: "data/test.csv"
 
 #model blueprint location and where to store the trained model and predictions
-model_blueprint_path: "output/blueprint/outlier_poly_pca_lasso_alpha_0_001_max_iter_1000_n_components_0_85_degree_3.joblib"
-model_trained_path : "models/outlier_poly_pca_lasso_alpha_0_001_max_iter_1000_n_components_0_85_degree_3_trained.joblib"
-preds_path: "output/preds/outlier_poly_pca_lasso_alpha_0_001_max_iter_1000_n_components_0_85_degree_3_preds.csv"
+model_blueprint_path: "output/blueprint/model_name.joblib"
+model_trained_path : "models/model_name_trained.joblib"
+preds_path: "output/preds/model_name_preds.csv"
 
 #training parameters
 target_col: "BeatsPerMinute"
@@ -22,11 +22,11 @@ feature_cols : [
 ]
 
 #grid-search parameters
-gs_output_dir: "output/grid_search/run_1/"
+gs_output_dir: "output/grid_search/run_x/"
 # sample_frac: null
 # sample_frac: 0.1
 sample_frac : 0.06
-# sample_frac: 0.01
+# sample_frac: 0.001
 n_splits: 5
 preprocessing:
   outlier_removal:
@@ -66,3 +66,35 @@ models_and_params:
       model__n_estimators: [100, 200]
       model__learning_rate: [0.05, 0.1]
       model__max_depth: [3, 5]
+  elasticnet:
+    model: ElasticNet
+    params:
+      model__alpha: [0.01, 0.1, 1.0, 10.0]       # overall regularization strength
+      model__l1_ratio: [0.1, 0.5, 0.7, 0.9, 1.0]  # 0=ridge, 1=lasso, middle=elastic
+  huber:
+    model: HuberRegressor
+    params:
+      model__alpha: [0.0001, 0.001, 0.01, 0.1]   # L2 regularization
+      model__epsilon: [1.1, 1.35, 1.5, 2.0]     # robustness threshold (default ~1.35)
+  bayesian:
+    model: BayesianRidge
+    params:
+      model__alpha_1: [0.000001, 0.01]   # prior over alpha (regularization)
+      model__alpha_2: [0.000001, 0.01]
+      model__lambda_1: [0.000001, 0.01]  # prior over lambda (precision of weights)
+      model__lambda_2: [0.000001, 0.01]
+  kernel:
+    model: KernelRidge
+    params:
+      model__alpha: [0.01, 0.1, 1.0]
+      model__kernel: ["linear", "rbf", "poly"]
+      model__gamma: [0.01, 0.1]   # only for rbf/poly
+      model__degree: [2, 3, 4]                 # only for poly
+  ard:
+    model: ARDRegression
+    params:
+      model__alpha_1: [0.000001, 0.01]
+      model__alpha_2: [0.000001, 0.01]
+      model__lambda_1: [0.000001, 0.01]
+      model__lambda_2: [0.000001, 0.01]
+      model__threshold_lambda: [100, 1000, 10000]  # pruning aggressiveness

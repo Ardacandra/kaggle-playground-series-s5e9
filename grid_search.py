@@ -11,8 +11,9 @@ from sklearn.metrics import root_mean_squared_error
 from sklearn.preprocessing import PolynomialFeatures, StandardScaler, KBinsDiscretizer
 from sklearn.decomposition import PCA
 from sklearn.ensemble import RandomForestRegressor, GradientBoostingRegressor
-from sklearn.linear_model import Ridge, Lasso
+from sklearn.linear_model import Ridge, Lasso, ElasticNet, HuberRegressor, BayesianRidge, ARDRegression
 from sklearn.neighbors import KNeighborsRegressor
+from sklearn.kernel_ridge import KernelRidge
 from scipy import stats
 import logging
 
@@ -112,7 +113,6 @@ def main(config_path):
 
             except Exception as e:
                 logging.info(f"skipping grid search for step : {steps}. reason : {type(e).__name__}")
-                continue
 
     # --- Display results ---
     for res in results:
