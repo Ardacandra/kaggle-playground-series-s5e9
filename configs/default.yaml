@@ -22,7 +22,7 @@ feature_cols : [
 ]
 
 #grid-search parameters
-gs_output_dir: "output/grid_search/run_3/"
+gs_output_dir: "output/grid_search/run_x/"
 # sample_frac: null
 # sample_frac: 0.1
 sample_frac : 0.06
@@ -30,7 +30,7 @@ sample_frac : 0.06
 n_splits: 5
 preprocessing:
   outlier_removal:
-    enabled: false
+    enabled: true
   robust_scaler:
     enabled: true
   polynomial:
