@@ -8,7 +8,7 @@ import itertools
 from sklearn.pipeline import Pipeline
 from sklearn.model_selection import GridSearchCV
 from sklearn.metrics import root_mean_squared_error
-from sklearn.preprocessing import PolynomialFeatures, StandardScaler, KBinsDiscretizer
+from sklearn.preprocessing import PolynomialFeatures, StandardScaler, KBinsDiscretizer, RobustScaler
 from sklearn.decomposition import PCA
 from sklearn.ensemble import RandomForestRegressor, GradientBoostingRegressor
 from sklearn.linear_model import Ridge, Lasso, ElasticNet, HuberRegressor, BayesianRidge, ARDRegression
@@ -61,6 +61,9 @@ def main(config_path):
 
     if preproc_cfg["outlier_removal"]["enabled"]:
         available_steps.append(("outlier_removal", OutlierRemoval(), [None])) # no hyperparams
+
+    if preproc_cfg["robust_scaler"]["enabled"]:
+        available_steps.append(("robust_scaler", RobustScaler(), [None])) # no hyperparams
 
     if preproc_cfg["polynomial"]["enabled"]:
         available_steps.append(("polynomial", PolynomialFeatures(interaction_only=False, include_bias=False), preproc_cfg["polynomial"]["degree"]))
