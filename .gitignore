@@ -16,3 +16,6 @@ models/
 
 # Ignore sh files
 *.sh
+
+# Ignore catboost output
+catboost_info/*
