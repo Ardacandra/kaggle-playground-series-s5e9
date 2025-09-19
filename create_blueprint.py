@@ -18,6 +18,10 @@ import joblib
 import argparse
 import yaml
 
+from lightgbm import LGBMRegressor
+from xgboost import XGBRegressor
+from catboost import CatBoostRegressor
+
 from src.feature_engineering import *
 from src.modeling import *
 

@@ -28,6 +28,8 @@ gs_output_dir: "output/grid_search/run_x/"
 sample_frac : 0.06
 # sample_frac: 0.001
 n_splits: 5
+# n_splits: 3
+gpu: false
 preprocessing:
   outlier_removal:
     enabled: true
@@ -37,7 +39,7 @@ preprocessing:
     enabled: true
     degree: [2, 3]
   binning:
-    enabled: false
+    enabled: true
     n_bins: [5, 10, 15]
   standardization:
     enabled: false
@@ -45,39 +47,6 @@ preprocessing:
     enabled: true
     var_ratio: [0.85, 0.90, 0.95, 0.99]
 models_and_params:
-  # knn:
-  #   model: KNeighborsRegressor
-  #   params:
-  #     model__n_neighbors: [3, 5, 10]
-  ridge:
-    model: Ridge
-    params:
-      model__alpha: [0.01, 0.1, 1, 10]
-  lasso:
-    model: Lasso
-    params:
-      model__alpha: [0.01, 0.1, 1, 10]
-  # rf:
-  #   model: RandomForestRegressor
-  #   params:
-  #     model__n_estimators: [100, 200]
-  #     model__max_depth: [null, 10]
-  # gbr:
-  #   model: GradientBoostingRegressor
-  #   params:
-  #     model__n_estimators: [100, 200]
-  #     model__learning_rate: [0.05, 0.1]
-  #     model__max_depth: [3, 5]
-  elasticnet:
-    model: ElasticNet
-    params:
-      model__alpha: [0.01, 0.1, 1.0, 10.0]       # overall regularization strength
-      model__l1_ratio: [0.1, 0.5, 0.7, 0.9, 1.0]  # 0=ridge, 1=lasso, middle=elastic
-  # huber:
-  #   model: HuberRegressor
-  #   params:
-  #     model__alpha: [0.0001, 0.001, 0.01, 0.1]   # L2 regularization
-  #     model__epsilon: [1.1, 1.35, 1.5, 2.0]     # robustness threshold (default ~1.35)
   bayesian:
     model: BayesianRidge
     params:
@@ -85,18 +54,70 @@ models_and_params:
       model__alpha_2: [0.000001, 0.01]
       model__lambda_1: [0.000001, 0.01]  # prior over lambda (precision of weights)
       model__lambda_2: [0.000001, 0.01]
-  # kernel:
-  #   model: KernelRidge
-  #   params:
-  #     model__alpha: [0.01, 0.1, 1.0]
-  #     model__kernel: ["linear", "rbf", "poly"]
-  #     model__gamma: [0.01, 0.1]   # only for rbf/poly
-  #     model__degree: [2, 3, 4]                 # only for poly
-  ard:
-    model: ARDRegression
+  lgbm:
+    model: LGBMRegressor
     params:
-      model__alpha_1: [0.000001, 0.01]
-      model__alpha_2: [0.000001, 0.01]
-      model__lambda_1: [0.000001, 0.01]
-      model__lambda_2: [0.000001, 0.01]
-      model__threshold_lambda: [100, 1000, 10000]  # pruning aggressiveness
+      model__n_estimators: [100, 200]
+      model__max_depth: [-1, 10, 20]
+      model__learning_rate: [0.01, 0.1]
+  xgb:
+    model: XGBRegressor
+    params:
+      model__n_estimators: [100, 200]
+      model__max_depth: [3, 6, 10]
+      model__learning_rate: [0.01, 0.1]
+  catboost:
+    model: CatBooostRegressor
+    params:
+      model__depth: [6, 10]
+      model__iterations: [200, 500]
+      model__learning_rate: [0.01, 0.1]
+
+  # # knn:
+  # #   model: KNeighborsRegressor
+  # #   params:
+  # #     model__n_neighbors: [3, 5, 10]
+  # ridge:
+  #   model: Ridge
+  #   params:
+  #     model__alpha: [0.01, 0.1, 1, 10]
+  # lasso:
+  #   model: Lasso
+  #   params:
+  #     model__alpha: [0.01, 0.1, 1, 10]
+  # # rf:
+  # #   model: RandomForestRegressor
+  # #   params:
+  # #     model__n_estimators: [100, 200]
+  # #     model__max_depth: [null, 10]
+  # # gbr:
+  # #   model: GradientBoostingRegressor
+  # #   params:
+  # #     model__n_estimators: [100, 200]
+  # #     model__learning_rate: [0.05, 0.1]
+  # #     model__max_depth: [3, 5]
+  # elasticnet:
+  #   model: ElasticNet
+  #   params:
+  #     model__alpha: [0.01, 0.1, 1.0, 10.0]       # overall regularization strength
+  #     model__l1_ratio: [0.1, 0.5, 0.7, 0.9, 1.0]  # 0=ridge, 1=lasso, middle=elastic
+  # # huber:
+  # #   model: HuberRegressor
+  # #   params:
+  # #     model__alpha: [0.0001, 0.001, 0.01, 0.1]   # L2 regularization
+  # #     model__epsilon: [1.1, 1.35, 1.5, 2.0]     # robustness threshold (default ~1.35)
+  # # kernel:
+  # #   model: KernelRidge
+  # #   params:
+  # #     model__alpha: [0.01, 0.1, 1.0]
+  # #     model__kernel: ["linear", "rbf", "poly"]
+  # #     model__gamma: [0.01, 0.1]   # only for rbf/poly
+  # #     model__degree: [2, 3, 4]                 # only for poly
+  # ard:
+  #   model: ARDRegression
+  #   params:
+  #     model__alpha_1: [0.000001, 0.01]
+  #     model__alpha_2: [0.000001, 0.01]
+  #     model__lambda_1: [0.000001, 0.01]
+  #     model__lambda_2: [0.000001, 0.01]
+  #     model__threshold_lambda: [100, 1000, 10000]  # pruning aggressiveness

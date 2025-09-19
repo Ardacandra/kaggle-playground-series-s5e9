@@ -17,6 +17,10 @@ from sklearn.kernel_ridge import KernelRidge
 from scipy import stats
 import logging
 
+from lightgbm import LGBMRegressor
+from xgboost import XGBRegressor
+from catboost import CatBoostRegressor
+
 from src.feature_engineering import OutlierRemoval
 
 import warnings
@@ -83,8 +87,17 @@ def main(config_path):
     # --- Run GridSearch for each model ---
     results = []
     for model_name, model_cfg in models_cfg.items():
-        model_class = eval(model_cfg["model"])  # e.g. "Ridge" -> Ridge
-        model = model_class()
+        if model_cfg["model"]=="CatBooostRegressor" and not cfg["gpu"]:
+            model = CatBoostRegressor(verbose=0) # silence CatBoost output
+        elif model_cfg["model"]=="CatBooostRegressor" and cfg["gpu"]:
+            model = CatBoostRegressor(task_type="GPU", devices="0", verbose=0)
+        elif model_cfg["model"]=="XGBRegressor" and cfg["gpu"]:
+            model = XGBRegressor(tree_method="gpu_hist", predictor="gpu_predictor")
+        elif model_cfg["model"]=="LGBMRegressor" and cfg["gpu"]:
+            model = LGBMRegressor(device="gpu")
+        else :
+            model_class = eval(model_cfg["model"])  # e.g. "Ridge" -> Ridge
+            model = model_class()
 
         for combo in preprocessing_combinations:
             steps = []
