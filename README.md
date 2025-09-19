@@ -64,4 +64,7 @@ python predict.py --config configs/default.yaml
 
 ### Acknowledgements
 
-This project was developed as part of the Kaggle Playground Series – Season 5, Episode 9
+This project was developed as part of the Kaggle Playground Series – Season 5, Episode 9. [Adil Shamim's notebook](https://www.kaggle.com/code/adilshamim8/predicting-the-beats-per-minute-of-songs-101) is also used for reference and performance comparison.
+
+- Walter Reade and Elizabeth Park. Predicting the Beats-per-Minute of Songs. https://kaggle.com/competitions/playground-series-s5e9, 2025. Kaggle.
+- Adil Shamim. Predicting the Beats-per-Minute of Songs 101. https://www.kaggle.com/code/adilshamim8/predicting-the-beats-per-minute-of-songs-101, 2025.
