@@ -21,6 +21,20 @@ feature_cols : [
   'Energy'
 ]
 
+#stacking parameters
+stacking_output_path: "output/"
+stacking_blueprint_path: "output/blueprint/"
+stacking_model_path: "models/"
+
+stacking_models_list: [
+  #list down model blueprint to stack here
+  "model1",
+  "model2",
+  "model3",
+]
+
+stacking_model_name: "stacking_model_name"
+
 #grid-search parameters
 gs_output_dir: "output/grid_search/run_x/"
 # sample_frac: null
