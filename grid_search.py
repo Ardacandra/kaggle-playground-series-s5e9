@@ -121,21 +121,43 @@ def main(config_path):
             grid = GridSearchCV(pipeline, param_grid, cv=cfg['n_splits'], scoring="neg_mean_squared_error", n_jobs=-1)
             try:
                 grid.fit(X.copy(), y.copy())
-                result = (model_name, [s[0] for s in combo], grid.best_params_, (-grid.best_score_)**0.5)
-                results.append(result)
-                logging.info(result)
+
+                #extract cv results
+                cvres = pd.DataFrame(grid.cv_results_)
+                #add rmse column
+                cvres['rmse'] = (-cvres["mean_test_score"]) ** 0.5
+                #get top 5 models with best rmse
+                top5 = cvres.nsmallest(5, "rmse")
+
+                #store results
+                for _, row in top5.iterrows():
+                    result = (
+                        model_name,
+                        [s[0] for s in combo],
+                        row['params'],
+                        row['rmse'],
+                    )
+                    results.append(result)
+                    logging.info(result)
+
                 #save temporary results to csv
-                pd.DataFrame(results, columns=['model_name', 'preprocessing', 'best_params', 'rmse']).to_csv(os.path.join(cfg["gs_output_dir"], "grid_search_result.csv"), index=False)
+                pd.DataFrame(
+                    results,
+                    columns=["model_name", "preprocessing", "params", "rmse"]
+                ).to_csv(
+                    os.path.join(cfg["gs_output_dir"], "grid_search_result.csv"),
+                    index=False
+                )
 
             except Exception as e:
                 logging.info(f"skipping grid search for step : {steps}. reason : {type(e).__name__}")
 
-    # --- Display results ---
-    for res in results:
-        model, preproc_steps, best_params, rmse = res
-        print(f"Model: {model}, Preprocessing: {preproc_steps}, RMSE: {rmse:.4f}")
-        print(f"Best Params: {best_params}")
-        print("-" * 60)
+    # # --- Display results ---
+    # for res in results:
+    #     model, preproc_steps, best_params, rmse = res
+    #     print(f"Model: {model}, Preprocessing: {preproc_steps}, RMSE: {rmse:.4f}")
+    #     print(f"Best Params: {best_params}")
+    #     print("-" * 60)
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
