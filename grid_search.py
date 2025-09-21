@@ -89,12 +89,14 @@ def main(config_path):
     for model_name, model_cfg in models_cfg.items():
         if model_cfg["model"]=="CatBooostRegressor" and not cfg["gpu"]:
             model = CatBoostRegressor(verbose=0) # silence CatBoost output
+        elif model_cfg["model"]=="LGBMRegressor" and not cfg["gpu"]:
+            model = LGBMRegressor(verbose=-1, n_jobs=1)
         elif model_cfg["model"]=="CatBooostRegressor" and cfg["gpu"]:
             model = CatBoostRegressor(task_type="GPU", devices="0", verbose=0)
         elif model_cfg["model"]=="XGBRegressor" and cfg["gpu"]:
             model = XGBRegressor(tree_method="gpu_hist", predictor="gpu_predictor")
         elif model_cfg["model"]=="LGBMRegressor" and cfg["gpu"]:
-            model = LGBMRegressor(device="gpu")
+            model = LGBMRegressor(device="gpu", verbose=-1, n_jobs=1)
         else :
             model_class = eval(model_cfg["model"])  # e.g. "Ridge" -> Ridge
             model = model_class()
