@@ -49,11 +49,11 @@ def main(config_path):
 
     for m in cfg["stacking_models_list"]:
         blueprint = joblib.load(os.path.join(cfg["stacking_blueprint_path"], f"{m}.joblib"))
-        trained = joblib.load(os.path.join(cfg["stacking_model_path"], f"{m}_trained.joblib"))
+        # trained = joblib.load(os.path.join(cfg["stacking_model_path"], f"{m}_trained.joblib"))
 
         models_dict[m] = {}
         models_dict[m]["blueprint"] = blueprint
-        models_dict[m]["trained"] = trained
+        # models_dict[m]["trained"] = trained
 
     logging.info(f"finished loading individual models : {cfg['stacking_models_list']}")
     
