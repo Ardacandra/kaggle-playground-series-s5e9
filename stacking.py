@@ -145,6 +145,10 @@ def main(config_path):
     #generate test predictions
     logging.info("train final stacking model...")
     stacking.fit(X_train, y_train)
+    model_save_path = os.path.join(cfg["stacking_model_path"], f"{cfg['stacking_model_name']}.joblib")
+    joblib.dump(stacking, model_save_path)
+    logging.info(f"trained final stacking model saved to {model_save_path}")
+
     logging.info("generate test predictions...")
     y_test_preds = stacking.predict(X_test)
 
