@@ -7,6 +7,7 @@ from sklearn.ensemble import StackingRegressor
 from sklearn.linear_model import Ridge
 from sklearn.base import BaseEstimator, RegressorMixin, clone
 from sklearn.model_selection import KFold
+import itertools
 
 import os
 import joblib
@@ -18,42 +19,77 @@ import warnings
 warnings.filterwarnings("ignore")
 
 class CustomStackingRegressor(BaseEstimator, RegressorMixin):
-    def __init__(self, base_estimators, final_estimator, n_folds=5, shuffle=True, random_state=None):
+    def __init__(self, base_estimators, final_estimator, n_folds=5, shuffle=True, random_state=None, search_combinations=True):
         self.base_estimators = base_estimators  # list of (name, estimator)
         self.final_estimator = final_estimator
         self.n_folds = n_folds
         self.shuffle = shuffle
         self.random_state = random_state
+        self.search_combinations = True
 
     def fit(self, X, y):
-        # store fitted base estimators
-        self.base_estimators_ = [clone(est) for _, est in self.base_estimators]
+        if self.search_combinations:
+            best_score = np.inf
+            best_combo = None
 
-        # create out-of-fold predictions for meta-learner training
-        meta_features = np.zeros((X.shape[0], len(self.base_estimators)))
+            # generate all non-empty subsets of base estimators
+            for r in range(1, len(self.base_estimators) + 1):
+                for combo in itertools.combinations(self.base_estimators, r):
+                    score = self._evaluate_combo(combo, X, y)
+                    if score < best_score:
+                        best_score = score
+                        best_combo = combo
 
+            self.selected_estimators_ = [clone(est) for _, est in best_combo]
+        else:
+            # store fitted base estimators
+            self.selected_estimators_ = [clone(est) for _, est in self.base_estimators]
+
+        # fit meta-features with the selected combo
+        self.meta_features_ = self._fit_estimators(self.selected_estimators_, X, y)
+
+        # fit meta-learner
+        self.final_estimator_ = clone(self.final_estimator)
+        self.final_estimator_.fit(self.meta_features_, y)
+
+        return self
+
+
+    def _evaluate_combo(self, combo, X, y):
+        """Evaluate a subset of estimators with CV RMSE on meta-features."""
+        meta_features = self._fit_estimators([clone(est) for _, est in combo], X, y, refit=False)
+
+        # cross-validate final estimator on the meta features
+        scores = cross_val_score(
+            clone(self.final_estimator),
+            meta_features, y,
+            cv=self.n_folds,
+            scoring="neg_root_mean_squared_error"
+        )
+        return -scores.mean()
+
+    def _fit_estimators(self, estimators, X, y, refit=True):
+        """Fit base estimators with out-of-fold predictions to create meta-features."""
         kf = KFold(n_splits=self.n_folds, shuffle=self.shuffle, random_state=self.random_state)
+        meta_features = np.zeros((X.shape[0], len(estimators)))
 
-        for i, est in enumerate(self.base_estimators_):
+        for i, est in enumerate(estimators):
             oof_preds = np.zeros(X.shape[0])
             for train_idx, val_idx in kf.split(X, y):
                 est_clone = clone(est)
                 est_clone.fit(X.iloc[train_idx].copy(), y.iloc[train_idx].copy())
-                oof_preds[val_idx] = est_clone.predict(X.iloc[val_idx].copy())
+                preds = est_clone.predict(X.iloc[val_idx].copy())
+                oof_preds[val_idx] = preds.ravel()
             meta_features[:, i] = oof_preds
-            # refit on full data for later predictions
-            est.fit(X.copy(), y.copy())
+            if refit:
+                est.fit(X.copy(), y.copy())
 
-        # fit meta-learner on stacked features
-        self.final_estimator_ = clone(self.final_estimator)
-        self.final_estimator_.fit(meta_features, y)
-
-        return self
+        return meta_features
 
     def predict(self, X):
 
         # get predictions from base learners
-        base_preds = np.column_stack([est.predict(X.copy()) for est in self.base_estimators_])
+        base_preds = np.column_stack([est.predict(X.copy()) for est in self.selected_estimators_])
 
         # meta-learner makes final prediction
         return self.final_estimator_.predict(base_preds)
@@ -128,7 +164,9 @@ def main(config_path):
     stacking = CustomStackingRegressor(
         base_estimators=estimators,
         final_estimator=Ridge(alpha=1.0),
-        n_folds=5,
+        n_folds=3,
+        random_state=42,
+        search_combinations=True,
     )
 
     cv_rmse = cross_val_score(
@@ -136,7 +174,8 @@ def main(config_path):
         X_train,
         y_train,
         scoring="neg_mean_squared_error",
-        cv=5,
+        # cv=5,
+        cv=3,
     ).mean()
     cv_rmse = (-cv_rmse)**0.5
 
