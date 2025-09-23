@@ -64,7 +64,8 @@ class CustomStackingRegressor(BaseEstimator, RegressorMixin):
             clone(self.final_estimator),
             meta_features, y,
             cv=self.n_folds,
-            scoring="neg_root_mean_squared_error"
+            scoring="neg_root_mean_squared_error",
+            n_jobs=-1,
         )
         return -scores.mean()
 
@@ -146,6 +147,7 @@ def main(config_path):
             y_train,
             scoring="neg_mean_squared_error",
             cv=5,
+            n_jobs=-1,
         ).mean()
         cv_rmse = (-cv_rmse)**0.5
         logging.info(f"{m} cv rmse : {cv_rmse}")
@@ -174,8 +176,8 @@ def main(config_path):
         X_train,
         y_train,
         scoring="neg_mean_squared_error",
-        # cv=5,
-        cv=3,
+        cv=5,
+        n_jobs=-1,
     ).mean()
     cv_rmse = (-cv_rmse)**0.5
 
