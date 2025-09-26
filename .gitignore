@@ -19,3 +19,6 @@ models/
 
 # Ignore catboost output
 catboost_info/*
+
+# Ignore sandbox notebook
+sandbox.ipynb
